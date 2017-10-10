@@ -1,2 +1,2 @@
 # Godatm
-Godot automatic tiled map - An attempted at procedural 2d map with marching squares
+This is for an alternative automatic tiled map - An second attempt at a procedural 2d map with marching squares
