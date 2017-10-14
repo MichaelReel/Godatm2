@@ -79,9 +79,9 @@ func basic_perlin_fill(tile_maps, grass, sand, water, tree):
 	
 	for y in range(grid_start_y, grid_end_y):
 		for x in range(grid_start_x, grid_end_x):
-			var b1 = base.getOctaveHash(x, y, 0, 4)
-			var b2 = base.getOctaveHash(x, y, 32, 1)
-			var s1 = solid.getOctaveHash(x, y, 0, 1)
+			var b1 = base.fractal2d(4, 1, x, y)
+			var b2 = base.fractal2d(1, 1, x, y, 32)
+			var s1 = solid.fractal2d(1, 1, x, y)
 			if b1 <= 0.25:
 				basemap.set_cell(x, y, water)
 			elif b1 <= 1 && s1 <= 0.06:

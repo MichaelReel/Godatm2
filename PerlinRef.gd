@@ -67,14 +67,23 @@ func getFloatHash(x, y, z = 0):
 func getHash(x, y, z = 0):
 	return float(self.getFloatHash(x * self.dx, y * self.dy, z * self.dz))
 	
-func getOctaveHash(x, y, z = 0, n = 1):
+func fractal2d(octaves, persistence, x, y, z = 0):
+	"""
+	Generate 2D Fractal noise 
+	"""
 	var total = 0
-	var scale = 1
-	for i in range(n):
-		total += getHash(x * scale, y * scale, z * scale) * (1.0 / scale)
-		scale << 1 
+	var frequency = 1
+	var amplitude = 1
+	var maxValue = 0
+	for i in range(octaves, 0, -1):
+		total += getHash(x * frequency, y * frequency, z * frequency) * amplitude
+		
+		maxValue += amplitude
+		
+		amplitude *= persistence
+		frequency *= 2
 	
-	return total
+	return total # / maxValue
 
 func fade(t):
 	return t * t * t * (t * (t * 6 - 15) + 10)

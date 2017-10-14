@@ -4,11 +4,11 @@
 # Which is further based on: https://gist.github.com/KdotJPG/b1270127455a94ac5d19
 
 const STRETCH_CONSTANT_2D = -0.211324865405187    # (1/Math.sqrt(2+1)-1)/2
-const SQUISH_CONSTANT_2D = 0.366025403784439      # (Math.sqrt(2+1)-1)/2
+const SQUISH_CONSTANT_2D  =  0.366025403784439      # (Math.sqrt(2+1)-1)/2
 const STRETCH_CONSTANT_3D = -1.0 / 6              # (1/Math.sqrt(3+1)-1)/3
-const SQUISH_CONSTANT_3D = 1.0 / 3                # (Math.sqrt(3+1)-1)/3
+const SQUISH_CONSTANT_3D  =  1.0 / 3                # (Math.sqrt(3+1)-1)/3
 const STRETCH_CONSTANT_4D = -0.138196601125011    # (1/Math.sqrt(4+1)-1)/4
-const SQUISH_CONSTANT_4D = 0.309016994374947      # (Math.sqrt(4+1)-1)/4
+const SQUISH_CONSTANT_4D  =  0.309016994374947      # (Math.sqrt(4+1)-1)/4
 
 const NORM_CONSTANT_2D = 47
 const NORM_CONSTANT_3D = 103
@@ -91,11 +91,11 @@ func _init(init_seed=DEFAULT_SEED):
 	for i in range(0, 256):
 		source.append(i);
 
-	init_seed = overflow(init_seed * 6364136223846793005 + 1442695040888963407)
-	init_seed = overflow(init_seed * 6364136223846793005 + 1442695040888963407)
-	init_seed = overflow(init_seed * 6364136223846793005 + 1442695040888963407)
+	init_seed = int(init_seed * 6364136223846793005 + 1442695040888963407)
+	init_seed = int(init_seed * 6364136223846793005 + 1442695040888963407)
+	init_seed = int(init_seed * 6364136223846793005 + 1442695040888963407)
 	for i in range(255, -1, -1):
-		init_seed = overflow(init_seed * 6364136223846793005 + 1442695040888963407)
+		init_seed = int(init_seed * 6364136223846793005 + 1442695040888963407)
 		var r = int((init_seed + 31) % (i + 1))
 		if r < 0:
 			r += i + 1
@@ -139,6 +139,23 @@ func _extrapolate4d(xsb, ysb, zsb, wsb, dx, dy, dz, dw):
 	
 	return g1 * dx + g2 * dy + g3 * dz + g4 * dw
 
+func fractal2d(x, y, octaves, persistence):
+	"""
+	Generate 2D Fractal noise 
+	"""
+	var total = 0
+	var frequency = 1
+	var amplitude = 1
+	var maxValue = 0
+	for i in range(octaves):
+		total += noise2d(x * frequency, y * frequency) * amplitude
+		
+		maxValue += amplitude
+		
+		amplitude *= persistence
+		frequency *= 2
+	
+	return total / maxValue
 
 func noise2d(x, y):
 	"""
