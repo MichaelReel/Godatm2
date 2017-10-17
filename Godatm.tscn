@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=1]
+[gd_scene load_steps=3 format=1]
 
 [ext_resource path="res://WaterGrassTiles.gd" type="Script" id=1]
 [ext_resource path="res://WaterGrassTiles.tres" type="TileSet" id=2]
-[ext_resource path="res://TextureGen.gd" type="Script" id=3]
 
 [node name="Node2D" type="Node2D"]
 
@@ -48,8 +47,8 @@ collision/mask = 1
 occluder/light_mask = 1
 tile_data = IntArray(  )
 
-[node name="Sprite" type="Sprite" parent="."]
+[node name="ProcDebug" type="Sprite" parent="MapCreator"]
 
-script/script = ExtResource( 3 )
+visibility/self_opacity = 0.5
 
 
