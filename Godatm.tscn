@@ -47,6 +47,10 @@ collision/mask = 1
 occluder/light_mask = 1
 tile_data = IntArray(  )
 
+[node name="ProcDebug" type="Sprite" parent="MapCreator"]
+
+visibility/self_opacity = 0.5
+
 [node name="Tree" type="TileMap" parent="MapCreator"]
 
 mode = 0
@@ -64,10 +68,5 @@ collision/layers = 1
 collision/mask = 1
 occluder/light_mask = 1
 tile_data = IntArray(  )
-
-[node name="ProcDebug" type="Sprite" parent="MapCreator"]
-
-visibility/visible = false
-visibility/self_opacity = 0.5
 
 
