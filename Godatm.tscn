@@ -1,12 +1,14 @@
-[gd_scene load_steps=3 format=1]
+[gd_scene load_steps=4 format=1]
 
 [ext_resource path="res://WaterGrassTiles.gd" type="Script" id=1]
 [ext_resource path="res://WaterGrassTiles.tres" type="TileSet" id=2]
+[ext_resource path="res://ChunkManager.gd" type="Script" id=3]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="MapCreator" type="Node2D" parent="."]
 
+visibility/visible = false
 script/script = ExtResource( 1 )
 gridSize = Vector2( 64, 64 )
 tileset = ExtResource( 2 )
@@ -68,5 +70,10 @@ collision/layers = 1
 collision/mask = 1
 occluder/light_mask = 1
 tile_data = IntArray(  )
+
+[node name="ChunkManager" type="Node2D" parent="."]
+
+script/script = ExtResource( 3 )
+tileset = ExtResource( 2 )
 
 
