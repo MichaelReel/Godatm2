@@ -9,7 +9,7 @@
 
 [node name="MapCreator" type="Node2D" parent="."]
 
-editor/display_folded = true
+visibility/visible = false
 script/script = ExtResource( 1 )
 gridSize = Vector2( 64, 64 )
 tileset = ExtResource( 2 )
@@ -76,9 +76,9 @@ tile_data = IntArray(  )
 
 script/script = ExtResource( 3 )
 tileset = ExtResource( 2 )
-chunkSize = Vector2( 16, 16 )
+chunk_size = Vector2( 32, 32 )
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="ChunkManager"]
 
 anchor_mode = 1
 rotating = false
