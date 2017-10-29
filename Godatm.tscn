@@ -1,82 +1,16 @@
-[gd_scene load_steps=5 format=1]
+[gd_scene load_steps=4 format=1]
 
-[ext_resource path="res://WaterGrassTiles.gd" type="Script" id=1]
+[ext_resource path="res://ChunkManager.gd" type="Script" id=1]
 [ext_resource path="res://WaterGrassTiles.tres" type="TileSet" id=2]
-[ext_resource path="res://ChunkManager.gd" type="Script" id=3]
-[ext_resource path="res://Camera.gd" type="Script" id=4]
+[ext_resource path="res://Camera.gd" type="Script" id=3]
 
 [node name="Node2D" type="Node2D"]
 
-[node name="MapCreator" type="Node2D" parent="."]
-
-visibility/visible = false
-script/script = ExtResource( 1 )
-gridSize = Vector2( 64, 64 )
-tileset = ExtResource( 2 )
-
-[node name="WaterSand" type="TileMap" parent="MapCreator"]
-
-mode = 0
-tile_set = ExtResource( 2 )
-cell/size = Vector2( 16, 16 )
-cell/quadrant_size = 16
-cell/custom_transform = Matrix32( 1, 0, 0, 1, 0, 0 )
-cell/half_offset = 2
-cell/tile_origin = 0
-cell/y_sort = false
-collision/use_kinematic = false
-collision/friction = 1.0
-collision/bounce = 0.0
-collision/layers = 1
-collision/mask = 1
-occluder/light_mask = 1
-tile_data = IntArray(  )
-
-[node name="Grass" type="TileMap" parent="MapCreator"]
-
-mode = 0
-tile_set = ExtResource( 2 )
-cell/size = Vector2( 16, 16 )
-cell/quadrant_size = 16
-cell/custom_transform = Matrix32( 1, 0, 0, 1, 0, 0 )
-cell/half_offset = 2
-cell/tile_origin = 0
-cell/y_sort = false
-collision/use_kinematic = false
-collision/friction = 1.0
-collision/bounce = 0.0
-collision/layers = 1
-collision/mask = 1
-occluder/light_mask = 1
-tile_data = IntArray(  )
-
-[node name="ProcDebug" type="Sprite" parent="MapCreator"]
-
-visibility/self_opacity = 0.5
-
-[node name="Tree" type="TileMap" parent="MapCreator"]
-
-mode = 0
-tile_set = ExtResource( 2 )
-cell/size = Vector2( 16, 16 )
-cell/quadrant_size = 16
-cell/custom_transform = Matrix32( 1, 0, 0, 1, 0, 0 )
-cell/half_offset = 2
-cell/tile_origin = 0
-cell/y_sort = false
-collision/use_kinematic = false
-collision/friction = 1.0
-collision/bounce = 0.0
-collision/layers = 1
-collision/mask = 1
-occluder/light_mask = 1
-tile_data = IntArray(  )
-
 [node name="ChunkManager" type="Node2D" parent="."]
 
-script/script = ExtResource( 3 )
+script/script = ExtResource( 1 )
 tileset = ExtResource( 2 )
-chunk_size = Vector2( 32, 32 )
+chunk_size = Vector2( 16, 16 )
 
 [node name="Camera2D" type="Camera2D" parent="ChunkManager"]
 
@@ -96,6 +30,6 @@ drag_margin/left = 0.0
 drag_margin/top = 0.0
 drag_margin/right = 0.0
 drag_margin/bottom = 0.0
-script/script = ExtResource( 4 )
+script/script = ExtResource( 3 )
 
 

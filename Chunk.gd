@@ -27,7 +27,7 @@ func init_map(tileset):
 func init_sprite():
 	var sprite = Sprite.new()
 	
-	sprite.set_opacity(0.5)
+	sprite.set_opacity(0.1)
 	sprite.set_pos(self.grid_dims.pos * self.tile_size)
 	
 	self.add_child(sprite)
