@@ -10,7 +10,7 @@
 
 script/script = ExtResource( 1 )
 tileset = ExtResource( 2 )
-chunk_size = Vector2( 16, 16 )
+chunk_size = Vector2( 32, 32 )
 
 [node name="Camera2D" type="Camera2D" parent="ChunkManager"]
 
