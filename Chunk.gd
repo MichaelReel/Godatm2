@@ -70,12 +70,10 @@ func basic_perlin_fill(water_sand, grass, tree):
 	
 	var perlinRef = load("res://PerlinRef.gd")
 	
+	# TODO: These should not be created every chunk, but once and reused
 	var base = perlinRef.new(wave_width, wave_height, wave_depth, 4)
 	var solid = perlinRef.new(wave_width, wave_height, wave_depth, 7, 20)
 	var rename_this = perlinRef.new(wave_width, wave_height, wave_depth, 13, 1023)
-	
-	var image_width = (self.grid_dims.end.x - self.grid_dims.pos.x + 1) * self.tile_size.x
-	var image_height = (self.grid_dims.end.y - self.grid_dims.pos.y + 1) * self.tile_size.y
 	
 	var b1_mid = 0
 	var b1_min = b1_mid
