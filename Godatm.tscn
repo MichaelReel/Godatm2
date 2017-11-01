@@ -1,16 +1,15 @@
-[gd_scene load_steps=4 format=1]
+[gd_scene load_steps=5 format=1]
 
 [ext_resource path="res://ChunkManager.gd" type="Script" id=1]
-[ext_resource path="res://WaterGrassTiles.tres" type="TileSet" id=2]
-[ext_resource path="res://Camera.gd" type="Script" id=3]
+[ext_resource path="res://Camera.gd" type="Script" id=2]
+[ext_resource path="res://Resource.gd" type="Script" id=3]
+[ext_resource path="res://WaterGrassTiles.tres" type="TileSet" id=4]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="ChunkManager" type="Node2D" parent="."]
 
 script/script = ExtResource( 1 )
-tileset = ExtResource( 2 )
-chunk_size = Vector2( 32, 32 )
 
 [node name="Camera2D" type="Camera2D" parent="ChunkManager"]
 
@@ -30,6 +29,12 @@ drag_margin/left = 0.0
 drag_margin/top = 0.0
 drag_margin/right = 0.0
 drag_margin/bottom = 0.0
+script/script = ExtResource( 2 )
+
+[node name="Resource" type="Node2D" parent="ChunkManager"]
+
 script/script = ExtResource( 3 )
+tileset = ExtResource( 4 )
+chunk_size = Vector2( 32, 32 )
 
 

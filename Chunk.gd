@@ -1,9 +1,5 @@
 extends Node2D
 
-const wave_width = 32
-const wave_height = 32
-const wave_depth = 1
-
 var grid_dims
 
 var water_sand_map
@@ -12,10 +8,10 @@ var tree_map
 
 var tile_size
 
-func init_map(tileset):
+func init_map(resourse):
 	var map = TileMap.new()
 	
-	map.set_tileset(tileset)
+	map.set_tileset(resourse.tileset)
 	map.set_cell_size(self.tile_size)
 	map.set_pos(self.grid_dims.pos * self.tile_size)
 	
@@ -23,57 +19,24 @@ func init_map(tileset):
 	
 	return map
 
-func init_sprite():
-	var sprite = Sprite.new()
-	
-	sprite.set_opacity(0.5)
-	sprite.set_pos(self.grid_dims.pos * self.tile_size)
-	
-	self.add_child(sprite)
-	
-	print(self.get_name(), ": debug_pos: ", sprite.get_pos())
-	
-	return sprite
-
-func _init(var grid_dimensions, var tileset):
+func _init(var grid_dimensions, var resource):
 	self.grid_dims = grid_dimensions
 	
-	self.tile_size = tileset.tile_get_region(1).size
+	self.tile_size = resource.tileset.tile_get_region(1).size
 
-	self.water_sand_map = init_map(tileset)
-	self.grass_map      = init_map(tileset)
-	self.tree_map       = init_map(tileset)
+	self.water_sand_map = init_map(resource)
+	self.grass_map      = init_map(resource)
+	self.tree_map       = init_map(resource)
 	
-	# Index tileset groups
-	# TODO: These really need parsed once, not per every chunk
-	var water_sand = []
-	for i in range(16):
-		water_sand.append(tileset.find_tile_by_name("WaterSand_%02d" % i))
+	basic_perlin_fill(resource)
 	
-	var grass = []
-	for i in range(16):
-		grass.append(tileset.find_tile_by_name("SandGrass_%02d" % i))
+	randomise_grass(self.grass_map, resource.grass[15], resource.grasses)
 
-	var tree = []
-	for i in range(16):
-		tree.append(tileset.find_tile_by_name("Tree_%02d" % i))
+func basic_perlin_fill(resource):
 	
-	var grasses = []
-	for i in range(1, 9):
-		grasses.append(tileset.find_tile_by_name("Grass_%02d" % i))
-	
-	call_deferred("basic_perlin_fill", water_sand, grass, tree)
-	
-	call_deferred("randomise_grass", self.grass_map, grass[15], grasses)
-
-func basic_perlin_fill(water_sand, grass, tree):
-	
-	var perlinRef = load("res://PerlinRef.gd")
-	
-	# TODO: These should not be created every chunk, but once and reused
-	var base = perlinRef.new(wave_width, wave_height, wave_depth, 4)
-	var solid = perlinRef.new(wave_width, wave_height, wave_depth, 7, 20)
-	var rename_this = perlinRef.new(wave_width, wave_height, wave_depth, 13, 1023)
+	var water_sand = resource.water_sand
+	var grass = resource.grass
+	var tree = resource.tree
 	
 	var b1_mid = 0
 	var b1_min = b1_mid
@@ -89,9 +52,9 @@ func basic_perlin_fill(water_sand, grass, tree):
 		grass_vertices.append([])
 		tree_vertices.append([])
 		for corner_y in range(self.grid_dims.pos.y, self.grid_dims.end.y + 1):
-			var b1 = base.fractal2d(3, 1.2, corner_x, corner_y, 0, 8)
-			var s1 = solid.fractal2d(2, 0.75, corner_x, corner_y, 0, 16)
-			var t1 = rename_this.fractal2d(1, 1, corner_x, corner_y)
+			var b1 = resource.base_fbm.fractal2d(3, 1.2, corner_x, corner_y, 0, 8)
+			var s1 = resource.grass_fbm.fractal2d(2, 0.75, corner_x, corner_y, 0, 16)
+			var t1 = resource.tree_fbm.fractal2d(1, 1, corner_x, corner_y)
 			
 			b1_min = min(b1_min, b1)
 			b1_max = max(b1_max, b1)
@@ -138,7 +101,7 @@ func get_corner_score(grid, limit, x, y):
 	return score
 
 func randomise_grass(tile_map, grass, grasses):
-	for y in range(self.grid_dims.pos.y, self.grid_dims.end.y):
-		for x in range(self.grid_dims.pos.x, self.grid_dims.end.x):
+	for y in range(0, self.grid_dims.size.y):
+		for x in range(0, self.grid_dims.size.x):
 			if grass == tile_map.get_cell(x, y):
 				tile_map.set_cell(x, y, grasses[rand_range(0,8)])

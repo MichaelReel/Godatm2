@@ -1,25 +1,19 @@
 extends Node2D
 
-export (TileSet) var tileset
-export (Vector2) var chunk_size
-
 var Chunk = load("res://Chunk.gd")
 
 var chunks = {}
 
+var resource
 var tile_size
 var cam
-
-var acc_time = 0 # Accumulated time (not real time)
-var per_sec = 0  # Times that _fixed_process was called in the last accumulated second
 
 func _ready():
 	set_fixed_process(true)
 	
-	self.tile_size = tileset.tile_get_region(1).size
+	self.resource = find_node("Resource", false)
 	self.cam = find_node("Camera2D", false)
-	
-	print (self.cam)
+	self.tile_size = self.resource.tileset.tile_get_region(1).size
 
 func _fixed_process(delta):
 	update_chunks()
@@ -34,10 +28,10 @@ func get_chunks_viewable():
 	
 	var rect = Rect2()
 	
-	rect.pos.x = floor(tiles_viewable.pos.x / self.chunk_size.x)
-	rect.pos.y = floor(tiles_viewable.pos.y / self.chunk_size.y)
-	rect.end.x = floor(tiles_viewable.end.x / self.chunk_size.x) + 1
-	rect.end.y = floor(tiles_viewable.end.y / self.chunk_size.y) + 1
+	rect.pos.x = floor(tiles_viewable.pos.x / self.resource.chunk_size.x)
+	rect.pos.y = floor(tiles_viewable.pos.y / self.resource.chunk_size.y)
+	rect.end.x = floor(tiles_viewable.end.x / self.resource.chunk_size.x) + 1
+	rect.end.y = floor(tiles_viewable.end.y / self.resource.chunk_size.y) + 1
 	
 	return rect
 
@@ -53,8 +47,8 @@ func update_chunks():
 func update_keyed_chunk(x, y):
 	var chunk_key = Vector2(x, y) 
 	if not chunks.has(chunk_key):
-		var new_pos = Vector2(self.chunk_size.x * x, self.chunk_size.y * y)
-		var new_chunk = Chunk.new(Rect2(new_pos, self.chunk_size), self.tileset)
+		var new_pos = Vector2(self.resource.chunk_size.x * x, self.resource.chunk_size.y * y)
+		var new_chunk = Chunk.new(Rect2(new_pos, self.resource.chunk_size), self.resource)
 		self.add_child(new_chunk, true)
 		chunks[chunk_key] = new_chunk
 	
