@@ -35,6 +35,6 @@ script/script = ExtResource( 2 )
 
 script/script = ExtResource( 3 )
 tileset = ExtResource( 4 )
-chunk_size = Vector2( 32, 32 )
+chunk_size = Vector2( 16, 16 )
 
 
