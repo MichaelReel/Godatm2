@@ -26,9 +26,6 @@ func _ready():
 	thread = Thread.new()
 	thread.start(self, "chunk_generation", 0)
 
-func _fixed_process(delta):
-	update_chunks()
-
 func get_chunks_viewable():
 	var center = self.cam.get_camera_screen_center()
 	var screen = get_viewport().get_rect().size
@@ -46,27 +43,45 @@ func get_chunks_viewable():
 	
 	return rect
 
-func update_chunks():
+func _fixed_process(delta):
 	# Chunk create is less interruptive. but there are 
 	# resource issues while not storing out of view chunks
 	var chunks_viewable = get_chunks_viewable()
+	var chunks_saveable_keys = chunks.keys()
 	for y in range(chunks_viewable.pos.y - 1, chunks_viewable.end.y + 1):
 		for x in range(chunks_viewable.pos.x - 1, chunks_viewable.end.x + 1):
-			update_keyed_chunk(x, y)
+			var chunk_key = Vector2(x, y)  
+			load_keyed_chunk(chunk_key)
+			chunks_saveable_keys.erase(chunk_key)
+	
+	for chunk_key in chunks_saveable_keys:
+		save_keyed_chunk(chunk_key)
 
-func update_keyed_chunk(x, y):
-	var chunk_key = Vector2(x, y)
+func load_keyed_chunk(chunk_key):
 	if not chunks.has(chunk_key):
 		if queue_chunk(chunk_key):
 			var new_chunk = is_ready(chunk_key)
 			if (new_chunk):
+				new_chunk.set_name(str(chunk_key))
 				self.add_child(new_chunk, true)
 				chunks[chunk_key] = new_chunk
 
+func save_keyed_chunk(chunk_key):
+	# TODO: We don't actually save yet, just remove from the tree
+	if chunks.has(chunk_key):
+		var old_chunk = chunks[chunk_key]
+		chunks.erase(chunk_key)
+		old_chunk.queue_free()
+
+const once_per = 0.1250
+
 func chunk_generation(u):
 	print("start chunk checker")
+	
+	var next_time = OS.get_unix_time() + once_per
 	while true:
-		if mutex.try_lock() == OK:
+		if next_time < OS.get_unix_time() and mutex.try_lock() == OK:
+			next_time += once_per
 			chunk_loader()
 			mutex.unlock()
 
