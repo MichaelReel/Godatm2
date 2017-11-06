@@ -5,6 +5,7 @@ extends Node2D
 
 export (TileSet) var tileset
 export (Vector2) var chunk_size
+export (String) var map_name
 
 const wave_width = 32
 const wave_height = 32
@@ -36,7 +37,9 @@ func _ready():
 	self.grasses = []
 	for i in range(1, 9):
 		self.grasses.append(self.tileset.find_tile_by_name("Grass_%02d" % i))
+	
+	rand_seed(map_name.hash())
 
-	self.base_fbm = self.perlinRef.new(wave_width, wave_height, wave_depth, 4)
-	self.grass_fbm = self.perlinRef.new(wave_width, wave_height, wave_depth, 7, 20)
-	self.tree_fbm = self.perlinRef.new(wave_width, wave_height, wave_depth, 13, 1023)
+	self.base_fbm = self.perlinRef.new(wave_width, wave_height, wave_depth, 4, randi())
+	self.grass_fbm = self.perlinRef.new(wave_width, wave_height, wave_depth, 7, randi())
+	self.tree_fbm = self.perlinRef.new(wave_width, wave_height, wave_depth, 13, randi())

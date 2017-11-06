@@ -26,6 +26,17 @@ func _ready():
 	thread = Thread.new()
 	thread.start(self, "chunk_generation", 0)
 
+func get_centered_chunk():
+	var center = self.cam.get_camera_screen_center()
+	var tiles_center = center / self.tile_size
+	
+	var vector = Vector2()
+	
+	vector.x = floor(tiles_center.x / self.resource.chunk_size.x)
+	vector.y = floor(tiles_center.y / self.resource.chunk_size.y)
+	
+	return vector
+
 func get_chunks_viewable():
 	var center = self.cam.get_camera_screen_center()
 	var screen = get_viewport().get_rect().size
@@ -46,13 +57,18 @@ func get_chunks_viewable():
 func _fixed_process(delta):
 	# Chunk create is less interruptive. but there are 
 	# resource issues while not storing out of view chunks
-	var chunks_viewable = get_chunks_viewable()
 	var chunks_saveable_keys = chunks.keys()
-	for y in range(chunks_viewable.pos.y - 1, chunks_viewable.end.y + 1):
-		for x in range(chunks_viewable.pos.x - 1, chunks_viewable.end.x + 1):
-			var chunk_key = Vector2(x, y)  
-			load_keyed_chunk(chunk_key)
-			chunks_saveable_keys.erase(chunk_key)
+	var center_chunk = get_centered_chunk()
+	var chunks_viewable = get_chunks_viewable()
+	var rings = max(chunks_viewable.end.x - center_chunk.x, chunks_viewable.end.y - center_chunk.y)
+	# Loop around in a "spiral" to list the nearest chunks first
+	for ring in range(rings):
+		for y in range(center_chunk.y - ring - 1, center_chunk.y + ring + 1):
+			for x in range(center_chunk.x - ring - 1, center_chunk.x + ring + 1):
+				var chunk_key = Vector2(x, y)
+				if (chunks_viewable.has_point(chunk_key)):
+					load_keyed_chunk(chunk_key)
+					chunks_saveable_keys.erase(chunk_key)
 	
 	for chunk_key in chunks_saveable_keys:
 		save_keyed_chunk(chunk_key)
