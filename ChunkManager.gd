@@ -10,6 +10,7 @@ var cam
 
 var queue = []
 var pending = {}
+var save_dir
 
 var thread
 var mutex
@@ -21,6 +22,16 @@ func _ready():
 	self.resource = find_node("Resource", false)
 	self.cam = find_node("Camera2D", false)
 	self.tile_size = self.resource.tileset.tile_get_region(1).size
+	
+	var save_dir_path = "user://" + self.resource.map_name + "/"
+	self.save_dir = Directory.new()
+	if self.save_dir.file_exists(save_dir_path):
+		print ("Found dir")
+		self.save_dir.open(save_dir_path)
+	else:
+		print ("Making dir")
+		self.save_dir.make_dir_recursive(save_dir_path)
+		self.save_dir.open(save_dir_path)
 	
 	mutex = Mutex.new()
 	thread = Thread.new()
@@ -60,12 +71,16 @@ func _fixed_process(delta):
 	var chunks_saveable_keys = chunks.keys()
 	var center_chunk = get_centered_chunk()
 	var chunks_viewable = get_chunks_viewable()
-	var rings = max(chunks_viewable.end.x - center_chunk.x, chunks_viewable.end.y - center_chunk.y)
-	# Loop around in a "spiral" to list the nearest chunks first
+	var rings = max(chunks_viewable.end.x - center_chunk.x, chunks_viewable.end.y - center_chunk.y) + 1
+	# List the nearest chunks first
 	for ring in range(rings):
-		for y in range(center_chunk.y - ring - 1, center_chunk.y + ring + 1):
-			for x in range(center_chunk.x - ring - 1, center_chunk.x + ring + 1):
-				var chunk_key = Vector2(x, y)
+		for y in range(-ring, ring + 1):
+			for x in range(-ring, ring + 1):
+				# Skip chunks on the inside of the ring
+				if abs(y) < ring and abs(x) < ring:
+					continue
+				var chunk_key = center_chunk + Vector2(x, y)
+				# The ring might be taller or wider than the viewable chunks
 				if (chunks_viewable.has_point(chunk_key)):
 					load_keyed_chunk(chunk_key)
 					chunks_saveable_keys.erase(chunk_key)
@@ -84,12 +99,14 @@ func load_keyed_chunk(chunk_key):
 
 func save_keyed_chunk(chunk_key):
 	# TODO: We don't actually save yet, just remove from the tree
-	if chunks.has(chunk_key):
+	if chunks.has(chunk_key) and mutex.try_lock() == OK:
 		var old_chunk = chunks[chunk_key]
+		save_chunk_to_file(chunk_key, old_chunk)
 		chunks.erase(chunk_key)
 		old_chunk.queue_free()
+		mutex.unlock()
 
-const once_per = 0.1250
+const once_per = 0.0625
 
 func chunk_generation(u):
 	print("start chunk checker")
@@ -106,6 +123,14 @@ func chunk_loader():
 		var chunk_key = queue[0]
 		var new_pos = Vector2(self.resource.chunk_size.x * chunk_key.x, self.resource.chunk_size.y * chunk_key.y)
 		var new_chunk = Chunk.new(Rect2(new_pos, self.resource.chunk_size), self.resource)
+		print ("look for chunk data")
+		var chunk_data = load_chunk_from_file(chunk_key)
+		if !chunk_data:
+			print ("generate chunk")
+			new_chunk.generate_content()
+		else:
+			print ("found chunk")
+			new_chunk.set_content(chunk_data)
 		pending[chunk_key] = new_chunk
 		queue.erase(chunk_key)
 
@@ -126,3 +151,25 @@ func is_ready(chunk_key):
 			pending.erase(chunk_key)
 		mutex.unlock()
 	return chunk
+
+func load_chunk_from_file(chunk_key):
+	var load_chunk_file = self.save_dir.get_current_dir() + "/" + str(chunk_key.x) + "_" + str(chunk_key.y) + ".chunk"
+	var load_chunk = File.new()
+	# If file isn't there, skip it
+	if !load_chunk.file_exists(load_chunk_file):
+		return false
+	# File exists, try to load it
+	var chunk_data = {}
+	load_chunk.open(load_chunk_file, File.READ)
+	chunk_data.parse_json(load_chunk.get_line())
+	load_chunk.close()
+	return chunk_data
+
+func save_chunk_to_file(chunk_key, old_chunk):
+	var save_chunk_file = self.save_dir.get_current_dir() + "/" + str(chunk_key.x) + "_" + str(chunk_key.y) + ".chunk"
+	var save_chunk = File.new()
+	save_chunk.open(save_chunk_file, File.WRITE)
+	var chunk_data = old_chunk.get_save_data()
+	save_chunk.store_line(chunk_data.to_json())
+	save_chunk.close()
+	
