@@ -11,6 +11,7 @@ var tree_map
 var sand_vertices = []
 var grass_vertices = []
 var tree_vertices = []
+var data_updated
 
 var tile_size
 
@@ -26,6 +27,8 @@ func init_map(resourse):
 	return map
 
 func _init(var grid_dimensions, var resource):
+	self.data_updated = false
+	
 	self.resource = resource
 	
 	self.grid_dims = grid_dimensions
@@ -39,21 +42,25 @@ func _init(var grid_dimensions, var resource):
 func generate_content():
 	basic_perlin_fill(self.resource)
 	randomise_grass(self.grass_map, self.resource.grass[15], self.resource.grasses)
+	self.data_updated = true
 
 func set_content(chunk_data):
-	self.sand_vertices = chunk_data[sand_vertices]
-	self.grass_vertices = chunk_data[grass_vertices]
-	self.tree_vertices = chunk_data[tree_vertices]
+	self.sand_vertices = chunk_data['sand_vertices']
+	self.grass_vertices = chunk_data['grass_vertices']
+	self.tree_vertices = chunk_data['tree_vertices']
 	
 	fill_tiles_from_vertices()
 
 func get_save_data():
-	var save_data = {
-		sand_vertices = self.sand_vertices,
-		grass_vertices = self.grass_vertices,
-		tree_vertices = self.tree_vertices
-	}
-	return save_data
+	if (self.data_updated):
+		var save_data = {
+			sand_vertices = self.sand_vertices,
+			grass_vertices = self.grass_vertices,
+			tree_vertices = self.tree_vertices
+		}
+		return save_data
+	else:
+		return false
 
 func basic_perlin_fill(resource):
 	

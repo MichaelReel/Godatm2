@@ -14,6 +14,7 @@ var save_dir
 
 var thread
 var mutex
+var gen_chunks
 
 func _ready():
 	print("readying chunk manager")
@@ -98,7 +99,6 @@ func load_keyed_chunk(chunk_key):
 				chunks[chunk_key] = new_chunk
 
 func save_keyed_chunk(chunk_key):
-	# TODO: We don't actually save yet, just remove from the tree
 	if chunks.has(chunk_key) and mutex.try_lock() == OK:
 		var old_chunk = chunks[chunk_key]
 		save_chunk_to_file(chunk_key, old_chunk)
@@ -106,31 +106,34 @@ func save_keyed_chunk(chunk_key):
 		old_chunk.queue_free()
 		mutex.unlock()
 
-const once_per = 0.0625
+const once_per = 0.03
 
 func chunk_generation(u):
 	print("start chunk checker")
 	
+	self.gen_chunks = true
 	var next_time = OS.get_unix_time() + once_per
-	while true:
+	while self.gen_chunks:
 		if next_time < OS.get_unix_time() and mutex.try_lock() == OK:
 			next_time += once_per
 			chunk_loader()
 			mutex.unlock()
+	
+	# Save any chunk that are still loaded
+	var chunks_saveable_keys = chunks.keys()
+	for chunk_key in chunks_saveable_keys:
+		save_keyed_chunk(chunk_key)
 
 func chunk_loader():
 	if queue.size() > 0:
 		var chunk_key = queue[0]
 		var new_pos = Vector2(self.resource.chunk_size.x * chunk_key.x, self.resource.chunk_size.y * chunk_key.y)
 		var new_chunk = Chunk.new(Rect2(new_pos, self.resource.chunk_size), self.resource)
-		print ("look for chunk data")
 		var chunk_data = load_chunk_from_file(chunk_key)
-		if !chunk_data:
-			print ("generate chunk")
-			new_chunk.generate_content()
-		else:
-			print ("found chunk")
+		if typeof(chunk_data) == TYPE_DICTIONARY:
 			new_chunk.set_content(chunk_data)
+		else:
+			new_chunk.generate_content()
 		pending[chunk_key] = new_chunk
 		queue.erase(chunk_key)
 
@@ -166,10 +169,16 @@ func load_chunk_from_file(chunk_key):
 	return chunk_data
 
 func save_chunk_to_file(chunk_key, old_chunk):
-	var save_chunk_file = self.save_dir.get_current_dir() + "/" + str(chunk_key.x) + "_" + str(chunk_key.y) + ".chunk"
-	var save_chunk = File.new()
-	save_chunk.open(save_chunk_file, File.WRITE)
 	var chunk_data = old_chunk.get_save_data()
-	save_chunk.store_line(chunk_data.to_json())
-	save_chunk.close()
+	# Only save if there's something to save
+	if typeof(chunk_data) == TYPE_DICTIONARY:
+		var save_chunk_file = self.save_dir.get_current_dir() + "/" + str(chunk_key.x) + "_" + str(chunk_key.y) + ".chunk"
+		var save_chunk = File.new()
+		save_chunk.open(save_chunk_file, File.WRITE)
+		save_chunk.store_line(chunk_data.to_json())
+		save_chunk.close()
+
+func _exit_tree():
+	self.gen_chunks = false
+	thread.wait_to_finish()
 	
