@@ -59,10 +59,10 @@ func get_chunks_viewable():
 	
 	var rect = Rect2()
 	
-	rect.pos.x = floor(tiles_viewable.pos.x / self.resource.chunk_size.x)
-	rect.pos.y = floor(tiles_viewable.pos.y / self.resource.chunk_size.y)
-	rect.end.x = floor(tiles_viewable.end.x / self.resource.chunk_size.x) + 1
-	rect.end.y = floor(tiles_viewable.end.y / self.resource.chunk_size.y) + 1
+	rect.pos.x = floor(tiles_viewable.pos.x / self.resource.chunk_size.x) - 1
+	rect.pos.y = floor(tiles_viewable.pos.y / self.resource.chunk_size.y) - 1 
+	rect.end.x = floor(tiles_viewable.end.x / self.resource.chunk_size.x) + 2
+	rect.end.y = floor(tiles_viewable.end.y / self.resource.chunk_size.y) + 2
 	
 	return rect
 
